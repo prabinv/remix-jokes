@@ -1,29 +1,33 @@
-import { useLoaderData } from "remix";
+import { Joke } from "@prisma/client";
+import { LoaderFunction, useLoaderData, RequestHandler, Link } from "remix";
+import { db } from "~/utils/db.server";
 
-type Joke = { 
-  id: string,
-  joke: string,
-  status: string,
-}
+type LoaderData = { joke: Joke };
 
-export async function loader(): Promise<{ joke: Joke }> {
-  const response = await fetch("https://icanhazdadjoke.com/", {
-    headers: {
-      Accept: "application/json",
+export let loader: LoaderFunction = async ({ params }) => {
+  const { jokeId } = params;
+  let joke = await db.joke.findUnique({
+    where: {
+      id: jokeId
     },
   });
-  return response.json();
-}
+  if (!joke) {
+    throw new Error(`Joke with id ${jokeId} not found`);
+  }
+  let data: LoaderData = { joke };
+  return data;
+};
 
 export default function JokeRoute() {
-  const joke = useLoaderData();
+  const { joke } = useLoaderData<LoaderData>();
   
   return (
     <div>
       <p>Here's your hilarious joke:</p>
       <p>
-        {joke?.joke}
+        {joke?.content}
       </p>
+      <Link to=".">{joke?.name} Permalink</Link>
     </div>
   );
 }
