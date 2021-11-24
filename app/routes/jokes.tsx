@@ -1,4 +1,10 @@
-import { Outlet } from "remix";
+import { LinksFunction, Outlet } from "remix";
+import stylesUrl from "../styles/jokes.css";
+
+export let links: LinksFunction = () => {
+  return [{ rel: "stylesheet", href: stylesUrl }];
+};
+
 
 export default function JokesRoute() {
   return (
