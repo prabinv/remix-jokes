@@ -57,7 +57,6 @@ export async function createUserSession(
 }
 
 export function getUserSession(request: Request) {
-  console.log('🚀 -> file: session.server.ts -> line 104 -> request.headers.get("Cookie")', request.headers.get("Cookie"));
   return storage.getSession(request.headers.get("Cookie"));
 }
 
@@ -90,17 +89,15 @@ export async function getUser(request: Request) {
   }
 
   try {
-    let user = await db.user.findUnique({
+    return await db.user.findUnique({
       where: { id: userId }
     });
-    return user;
   } catch {
     throw logout(request);
   }
 }
 
 export async function logout(request: Request) {
-  console.log('🚀 -> file: session.server.ts -> line 104 -> request.headers.get("Cookie")', request.headers.get("Cookie"));
   let session = await storage.getSession(
     request.headers.get("Cookie")
   );
@@ -108,5 +105,23 @@ export async function logout(request: Request) {
     headers: {
       "Set-Cookie": await storage.destroySession(session)
     }
+  });
+}
+
+export async function register({
+  username,
+  password,
+}: LoginForm) {
+  let user = await db.user.findUnique({
+    where: { username }
+  });
+  if (user) throw new Error("Username already taken");
+
+  let passwordHash = await bcrypt.hash(password, 10);
+  return db.user.create({
+    data: {
+      username,
+      passwordHash,
+    },
   });
 }

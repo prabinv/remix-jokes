@@ -45,7 +45,7 @@ export default function JokesRoute() {
               <span className="logo-medium">J🤪KES</span>
             </Link>
           </h1>
-          {data.user ? (
+          {data?.user ? (
             <div className="user-info">
               <span>{`Hi ${data.user.username}`}</span>
               <form action="/logout" method="post">
@@ -65,7 +65,7 @@ export default function JokesRoute() {
             <Link to=".">Get a random joke</Link>
             <p>Here are a few more jokes to check out:</p>
             <ul>
-              {data.jokeListItems.map(joke => (
+              {(data?.jokeListItems || []).map(joke => (
                 <li key={joke.id}>
                   <Link to={joke.id}>{joke.name}</Link>
                 </li>

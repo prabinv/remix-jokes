@@ -1,6 +1,7 @@
 import { ActionFunction, LinksFunction, useActionData } from "remix";
 import { Link, useSearchParams } from "remix";
-import { createUserSession, login } from "~/utils/session.server";
+import { db } from "~/utils/db.server";
+import { createUserSession, login, register } from "~/utils/session.server";
 import stylesUrl from "../styles/login.css";
 
 export let links: LinksFunction = () => {
@@ -50,10 +51,32 @@ export let action: ActionFunction = async ({ request }): Promise<Response | Acti
         }
       }
       return createUserSession(user.id, redirectTo);
+    case "register":
+      let userExists = await db.user.findFirst({
+        where: {
+          username,
+        },
+      });
+      if (userExists) {
+        return {
+          fields,
+          formError: `User with username ${username} already exists`,
+        };
+      }
+      const newUser = await register(fields);
+      if (!newUser) {
+        return {
+          fields,
+          formError: "Something went wrong trying to create a new user",
+        };
+      }
+      return createUserSession(newUser.id, redirectTo);
+    default:
+      return {
+        fields,
+        formError: "Login type invalid",
+      };
   }
-
-  return { fields, formError: "Not implemented" };
-
 };
 
 
@@ -94,15 +117,6 @@ export default function Login() {
               Register
             </label>
           </fieldset>
-          {actionData?.formError ? (
-            <p
-              className="form-validation-error"
-              role="alert"
-              id="content-error"
-            >
-              {actionData.formError}
-            </p>
-          ) : null}
           <div>
             <label htmlFor="username-input">Username</label>
             <input
@@ -120,6 +134,16 @@ export default function Login() {
               type="password"
               defaultValue={actionData?.fields?.password}
             />
+          </div>
+          <div className="form-error-message">
+            {actionData?.formError ? (
+              <p
+                className="form-validation-error"
+                role="alert"
+              >
+                {actionData.formError}
+              </p>
+            ) : null}
           </div>
           <button type="submit" className="button">
             Submit
