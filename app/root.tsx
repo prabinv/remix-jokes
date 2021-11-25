@@ -1,4 +1,4 @@
-import { Links, LinksFunction, LiveReload, Outlet } from "remix";
+import { Links, LinksFunction, LiveReload, Meta, MetaFunction, Outlet } from "remix";
 import globalStylesUrl from "./styles/global.css";
 import globalMediumStylesUrl from "./styles/global-medium.css";
 import globalLargeStylesUrl from "./styles/global-large.css";
@@ -22,6 +22,20 @@ export let links: LinksFunction = () => {
   ];
 };
 
+export let meta: MetaFunction = () => {
+  let description = "A fun app to learn how to use Remix";
+  return {
+    description,
+    keywords: "Remix, jokes",
+    "twitter.image": "/social.png",
+    "twitter:card": "summary_large_image",
+    "twitter:creator": "@remix_run",
+    "twitter:site": "@remix_run",
+    "twitter:title": "Remix Jokes",
+    "twitter:description": description,
+  };
+};
+
 function Document({
   children,
   title = 'Remix: So great, it\'s funny',
@@ -35,6 +49,7 @@ function Document({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{title}</title>
+        <Meta />
         <Links />
       </head>
       <body>
