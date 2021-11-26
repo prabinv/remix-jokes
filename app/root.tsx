@@ -1,4 +1,4 @@
-import { Links, LinksFunction, LiveReload, Meta, MetaFunction, Outlet } from "remix";
+import { Links, LinksFunction, LiveReload, Meta, MetaFunction, Outlet, Scripts } from "remix";
 import globalStylesUrl from "./styles/global.css";
 import globalMediumStylesUrl from "./styles/global-medium.css";
 import globalLargeStylesUrl from "./styles/global-large.css";
@@ -54,6 +54,7 @@ function Document({
       </head>
       <body>
         {children}
+        <Scripts />
         {process.env.NODE_ENV === 'development' && <LiveReload />}
       </body>
     </html>
