@@ -1,4 +1,5 @@
-import { ActionFunction, redirect, Form, useActionData } from "remix";
+import { ActionFunction, redirect, Form, useActionData, useTransition } from "remix";
+import { JokeDisplay } from "~/components/joke";
 import { db } from "~/utils/db.server";
 import { requireUserId } from "~/utils/session.server";
 
@@ -60,6 +61,28 @@ export let action: ActionFunction = async ({ request }): Promise<Response | Acti
 
 export default function NewJokeRoute() {
   let actionData = useActionData<ActionData | undefined>();
+  let transition = useTransition();
+
+  if (transition.submission) {
+    let name = transition.submission.formData.get("name");
+    let content = transition.submission.formData.get("content");
+
+    if (
+      typeof name === "string" &&
+      typeof content === "string" &&
+      !validateJokeContent(content) &&
+      !validateJokeName(name)
+    ) {
+      return (
+        <JokeDisplay 
+          joke={{ name, content }}
+          isOwner={true}
+          canDelete={false}
+        />
+      );
+    }
+  }
+
   return (
     <div>
       <p>Add your own hilarious joke</p>
